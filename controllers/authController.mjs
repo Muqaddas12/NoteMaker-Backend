@@ -75,3 +75,45 @@ export const verifyOtp = async (req, res) => {
     return res.status(500).json({ error: "Server error" });
   }
 };
+
+
+export const signin = async (req, res) => {
+  const email = req.body.email?.trim().toLowerCase();
+  const otp = req.body.otp?.trim();
+
+  if (!email || !otp) {
+    return res.status(400).json({ error: "Email and OTP required" });
+  }
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user || user.otp !== otp) {
+      console.warn(`Invalid OTP attempt for ${email}`);
+      return res.status(401).json({ error: "Invalid OTP" });
+    }
+
+    if (!user.isVerified) user.isVerified = true;
+    user.otp = null;
+    await user.save();
+
+    const token = jwt.sign(
+      { id: user._id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    return res.status(200).json({
+      message: "Signed in successfully",
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    });
+  } catch (err) {
+    console.error("Signin error:", err);
+    return res.status(500).json({ error: "Server error" });
+  }
+};

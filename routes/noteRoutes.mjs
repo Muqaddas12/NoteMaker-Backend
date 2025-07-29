@@ -1,13 +1,12 @@
-
 import express from "express";
 import protect from "../middleware/authMiddleware.mjs";
 
 const router = express.Router();
 
-// Example protected route
-router.get("/protected", protect, (req, res) => {
+// Protected dashboard route
+router.get("/dashboard", protect, (req, res) => {
   res.json({
-    message: "You accessed a protected route",
+    message: "Welcome to the dashboard",
     user: req.user,
   });
 });
