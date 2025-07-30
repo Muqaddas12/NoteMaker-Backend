@@ -15,7 +15,7 @@ connectDB();
 // Middleware
 app.use(
   cors({
-    origin: "https://notemaker-backend-v3fg.onrender.com/", 
+    origin: true, 
     credentials: true,
   })
 );
