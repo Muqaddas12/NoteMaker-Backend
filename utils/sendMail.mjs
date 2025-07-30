@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
-import dotenv from 'dotenv'
-dotenv.config()
+import dotenv from "dotenv";
+dotenv.config();
+
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -14,7 +15,7 @@ export const sendOTP = async (to, otp) => {
     from: `NoteMaker <${process.env.EMAIL_USER}>`,
     to,
     subject: "Your OTP for NoteMaker",
-    html: `<p>Your OTP is: <b>${otp}</b></p>`,
+    html: `<p>Your OTP is: <b>${otp}</b>. It will expire in 10 minutes.</p>`,
   };
 
   return transporter.sendMail(mailOptions);
