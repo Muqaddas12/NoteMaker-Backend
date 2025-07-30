@@ -8,9 +8,11 @@ const OTP_EXPIRY = 10 * 60 * 1000; // 10 min
 const MAX_FAILED_ATTEMPTS = 5;
 const LOCK_DURATION = 15 * 60 * 1000; // 15 min
 
-// ✅ 1. Unified OTP Sending (Used in both Sign Up and Sign In)
+//SignIn
+
+
 export const sendOtp = async (req, res) => {
-  const { name, dob, email } = req.body;
+  const { name, dob, email,route } = req.body;
 
   if (!name || !dob || !email) {
     return res.status(400).json({ error: "All fields are required" });
@@ -20,28 +22,41 @@ export const sendOtp = async (req, res) => {
     const now = new Date();
     let user = await User.findOne({ email });
 
-    // If user already verified, block OTP send
-    if (user && user.isVerified) {
-      return res.status(400).json({ error: "User already exists. Please sign in." });
+    // If user exists and already verified
+    if (user && user.isVerified&&!route) {
+            const otp = generateOTP();
+             user.otp = otp;
+             user.otpRequestedAt = now;
+      user.otpExpiresAt = new Date(now.getTime() + OTP_EXPIRY);
+      await user.save();
+      await sendOTP(email, otp);
+      return res.status(200).json({ message: "OTP sent to your email" });
+     
     }
 
     // If user exists but unverified
-    if (user) {
+    if (user && (!user.isVerified)) {
       if (now - (user.otpRequestedAt || 0) < RATE_LIMIT_DURATION) {
         return res.status(429).json({ error: "Please wait before requesting a new OTP" });
       }
+// this is not duplicate contdition this for signup page 
 
-      const otp = generateOTP();
-      user.name = name;
-      user.dob = dob;
-      user.otp = otp;
-      user.otpRequestedAt = now;
-      user.otpExpiresAt = new Date(now.getTime() + OTP_EXPIRY);
-      user.isVerified = false;
+      if(user.email===email){
 
-      await user.save();
-      await sendOTP(email, otp);
-      return res.status(200).json({ message: "OTP resent to your email" });
+        return res.status(400).json({ error: "User Already Exists Please SignIn" });
+      }
+    
+      // const otp = generateOTP();
+      // user.name = name; 
+      // user.dob = dob;
+      // user.otp = otp;
+      // user.otpRequestedAt = now;
+      // user.otpExpiresAt = new Date(now.getTime() + OTP_EXPIRY);
+      // user.isVerified = false;
+
+      // await user.save();
+      // await sendOTP(email, otp);
+      // return res.status(200).json({ message: "OTP resent to your email" });
     }
 
     // Create new user if not found
@@ -65,7 +80,7 @@ export const sendOtp = async (req, res) => {
   }
 };
 
-// ❌ Removed signup — handled by sendOtp
+
 
 // ✅ 2. Sign In (Verify OTP)
 export const signin = async (req, res) => {
@@ -116,7 +131,7 @@ export const signin = async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: true,
       sameSite: "None",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
