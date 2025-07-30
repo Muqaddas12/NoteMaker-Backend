@@ -125,6 +125,34 @@ export const signin = async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 };
+export const check=async (req, res) => {
+  try {
+    const token = req.cookies.token;
+
+    if (!token) {
+      return res.status(401).json({ loggedIn: false, error: "No token provided" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id).select("-otp -otpExpiresAt -otpRequestedAt");
+
+    if (!user) {
+      return res.status(401).json({ loggedIn: false, error: "Invalid token" });
+    }
+
+    res.status(200).json({
+      loggedIn: true,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    });
+  } catch (err) {
+    console.error("Token check error:", err);
+    return res.status(401).json({ loggedIn: false, error: "Token is invalid or expired" });
+  }
+};
 
 export const logout = (req, res) => {
   res.clearCookie("token", {
