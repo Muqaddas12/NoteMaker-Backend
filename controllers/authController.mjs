@@ -150,7 +150,7 @@ export const signin = async (req, res) => {
   }
 };
 
-// ✅ 3. Check Login (Protected Route Check)
+//  3. Check Login (Protected Route Check)
 export const check = async (req, res) => {
   try {
     const token = req.cookies.token;
@@ -180,7 +180,7 @@ export const check = async (req, res) => {
   }
 };
 
-// ✅ 4. Logout
+//  4. Logout
 export const logout = (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
@@ -190,7 +190,7 @@ export const logout = (req, res) => {
   res.status(200).json({ message: "Logged out successfully" });
 };
 
-// ✅ 5. Check if User Exists
+//  5. Check if User Exists
 export const checkUserExists = async (req, res) => {
   try {
     const email = req.body.email?.trim().toLowerCase();

@@ -9,19 +9,19 @@ import {
 
 const router = express.Router();
 
-// 🔁 Unified OTP endpoint (for signup and signin)
+//  Unified OTP endpoint (for signup and signin)
 router.post("/send-otp", sendOtp);
 
-// ✅ Sign in with OTP
+// Sign in with OTP
 router.post("/signin", signin);
 
-// ✅ Check if user is logged in
+//  Check if user is logged in
 router.get("/check", check);
 
-// ✅ Log out
+//  Log out
 router.post("/logout", logout);
 
-// ✅ Check if user exists (optional utility)
+//  Check if user exists (optional utility)
 router.post("/check-user", checkUserExists);
 
 
