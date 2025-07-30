@@ -13,7 +13,12 @@ const app = express();
 connectDB();
 
 // Middleware
-app.use(cors({ origin: true, credentials: true }));
+app.use(
+  cors({
+    origin: "https://notemaker-backend-v3fg.onrender.com/", 
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
